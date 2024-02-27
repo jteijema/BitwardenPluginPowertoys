@@ -13,7 +13,7 @@ using Wox.Plugin.Logger;
 
 namespace Community.PowerToys.Run.Plugin.BitwardenPlugin
 {
-    public class Main : IPlugin, IContextMenu, ISettingProvider, IDisposable
+    public class Main : IPlugin, ISettingProvider, IDisposable
     {        
         /// <summary>
         /// ID of the plugin.
