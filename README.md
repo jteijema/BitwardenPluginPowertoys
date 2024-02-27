@@ -1,7 +1,7 @@
 # PowerToys x Bitwarden
 This code is a Bitwarden CLI based plugin for PowerToys.
 
-GitHub Repository: [link to the GitHub repository]
+GitHub Repository: [https://github.com/jteijema/BitwardenPluginPowertoys](teijema/BitwardenPluginPowertoys)
 
 The plugin is developed and tested with `PowerToys` `v0.78.0`.
 
