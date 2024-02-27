@@ -1,220 +1,79 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using ManagedCommon;
-using Microsoft.PowerToys.Settings.UI.Library;
 using Wox.Plugin;
-using Wox.Plugin.Logger;
+using Microsoft.PowerToys.Settings.UI.Library;
+using ManagedCommon;
 
-namespace Community.PowerToys.Run.Plugin.Demo
+namespace Community.PowerToys.Run.Plugin.Bitwarden
 {
-    /// <summary>
-    /// Main class of this plugin that implement all used interfaces.
-    /// </summary>
     public class Main : IPlugin, IContextMenu, ISettingProvider, IDisposable
     {
-        /// <summary>
-        /// ID of the plugin.
-        /// </summary>
-        public static string PluginID => "1C638DC8E8564E3194B323BA041B4A05";
+        private PluginInitContext Context { get; set; }
+        private HttpClient HttpClient { get; set; }
 
-        /// <summary>
-        /// Name of the plugin.
-        /// </summary>
-        public string Name => "bw";
+        public string Name => "Bitwarden Login Data";
+        public string Description => "Retrieve login data from Bitwarden";
 
-        /// <summary>
-        /// Description of the plugin.
-        /// </summary>
-        public string Description => "Count words and characters in text";
+        // Replace with your Bitwarden API token
+        private string ApiToken = "your_bitwarden_api_token";
 
-        /// <summary>
-        /// Additional options for the plugin.
-        /// </summary>
-        public IEnumerable<PluginAdditionalOption> AdditionalOptions => [
-            new()
-            {
-                Key = nameof(CountSpaces),
-                DisplayLabel = "Count spaces",
-                DisplayDescription = "Count spaces as characters",
-                PluginOptionType = PluginAdditionalOption.AdditionalOptionType.Checkbox,
-                Value = CountSpaces,
-            }
-        ];
-
-        private bool CountSpaces { get; set; }
-
-        private PluginInitContext? Context { get; set; }
-
-        private string? IconPath { get; set; }
-
-        private bool Disposed { get; set; }
-
-        /// <summary>
-        /// Return a filtered list, based on the given query.
-        /// </summary>
-        /// <param name="query">The query to filter the list.</param>
-        /// <returns>A filtered list, can be empty when nothing was found.</returns>
-        public List<Result> Query(Query query)
-        {
-            Log.Info("Query: " + query.Search, GetType());
-
-            var words = query.Terms.Count;
-            // Average rate for transcription: 32.5 words per minute
-            // https://en.wikipedia.org/wiki/Words_per_minute
-            var transcription = TimeSpan.FromMinutes(words / 32.5);
-            var minutes = $"{(int)transcription.TotalMinutes}:{transcription.Seconds:00}";
-
-            var charactersWithSpaces = query.Search.Length;
-            var charactersWithoutSpaces = query.Terms.Sum(x => x.Length);
-
-            return [
-                new()
-                {
-                    QueryTextDisplay = query.Search,
-                    IcoPath = IconPath,
-                    Title = $"Words: {words}",
-                    SubTitle = $"Transcription: {minutes} minutes",
-                    ToolTipData = new ToolTipData("Words", $"{words} words\n{minutes} minutes for transcription\nAverage rate for transcription: 32.5 words per minute"),
-                    ContextData = (words, transcription),
-                },
-                new()
-                {
-                    QueryTextDisplay = query.Search,
-                    IcoPath = IconPath,
-                    Title = $"Characters: {(CountSpaces ? charactersWithSpaces : charactersWithoutSpaces)}",
-                    SubTitle = CountSpaces ? "With spaces" : "Without spaces",
-                    ToolTipData = new ToolTipData("Characters", $"{charactersWithSpaces} characters (with spaces)\n{charactersWithoutSpaces} characters (without spaces)"),
-                    ContextData = CountSpaces ? charactersWithSpaces : charactersWithoutSpaces,
-                },
-            ];
-        }
-
-        /// <summary>
-        /// Initialize the plugin with the given <see cref="PluginInitContext"/>.
-        /// </summary>
-        /// <param name="context">The <see cref="PluginInitContext"/> for this plugin.</param>
         public void Init(PluginInitContext context)
         {
-            Log.Info("Init", GetType());
-
-            Context = context ?? throw new ArgumentNullException(nameof(context));
-            Context.API.ThemeChanged += OnThemeChanged;
-            UpdateIconPath(Context.API.GetCurrentTheme());
+            this.Context = context;
+            this.HttpClient = new HttpClient();
+            // Configure HttpClient for Bitwarden API
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ApiToken);
         }
 
-        /// <summary>
-        /// Return a list context menu entries for a given <see cref="Result"/> (shown at the right side of the result).
-        /// </summary>
-        /// <param name="selectedResult">The <see cref="Result"/> for the list with context menu entries.</param>
-        /// <returns>A list context menu entries.</returns>
-        public List<ContextMenuResult> LoadContextMenus(Result selectedResult)
+        public List<Result> Query(Query query)
         {
-            Log.Info("LoadContextMenus", GetType());
-
-            if (selectedResult?.ContextData is (int words, TimeSpan transcription))
+            var searchResults = Task.Run(() => SearchBitwarden(query.Search)).Result;
+            return searchResults.Select(item => new Result
             {
-                return
-                [
-                    new ContextMenuResult
-                    {
-                        PluginName = Name,
-                        Title = "Copy (Enter)",
-                        FontFamily = "Segoe Fluent Icons,Segoe MDL2 Assets",
-                        Glyph = "\xE8C8", // Copy
-                        AcceleratorKey = Key.Enter,
-                        Action = _ => CopyToClipboard(words.ToString()),
-                    },
-                    new ContextMenuResult
-                    {
-                        PluginName = Name,
-                        Title = "Copy time (Ctrl+Enter)",
-                        FontFamily = "Segoe Fluent Icons,Segoe MDL2 Assets",
-                        Glyph = "\xE916", // Stopwatch
-                        AcceleratorKey = Key.Enter,
-                        AcceleratorModifiers = ModifierKeys.Control,
-                        Action = _ => CopyToClipboard(transcription.ToString()),
-                    },
-                ];
-            }
-
-            if (selectedResult?.ContextData is int characters)
-            {
-                return
-                [
-                    new ContextMenuResult
-                    {
-                        PluginName = Name,
-                        Title = "Copy (Enter)",
-                        FontFamily = "Segoe Fluent Icons,Segoe MDL2 Assets",
-                        Glyph = "\xE8C8", // Copy
-                        AcceleratorKey = Key.Enter,
-                        Action = _ => CopyToClipboard(characters.ToString()),
-                    },
-                ];
-            }
-
-            return [];
+                Title = item.Name,
+                SubTitle = "Username: " + item.Username,
+                IcoPath = "Images\\bitwarden.png", // Ensure you have an appropriate icon
+                Action = context =>
+                {
+                    // Copy the password to the clipboard and show a message
+                    Clipboard.SetText(item.Password);
+                    MessageBox.Show("Password copied to clipboard", "Bitwarden", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return true;
+                }
+            }).ToList();
         }
 
-        /// <summary>
-        /// Creates setting panel.
-        /// </summary>
-        /// <returns>The control.</returns>
-        /// <exception cref="NotImplementedException">method is not implemented.</exception>
-        public Control CreateSettingPanel() => throw new NotImplementedException();
-
-        /// <summary>
-        /// Updates settings.
-        /// </summary>
-        /// <param name="settings">The plugin settings.</param>
-        public void UpdateSettings(PowerLauncherPluginSettings settings)
+        private async Task<List<BitwardenItem>> SearchBitwarden(string query)
         {
-            Log.Info("UpdateSettings", GetType());
-
-            CountSpaces = settings.AdditionalOptions.SingleOrDefault(x => x.Key == nameof(CountSpaces))?.Value ?? false;
+            var response = await HttpClient.GetAsync($"https://api.bitwarden.com/items?search={Uri.EscapeDataString(query)}");
+            response.EnsureSuccessStatusCode();
+            var stream = await response.Content.ReadAsStreamAsync();
+            var items = await JsonSerializer.DeserializeAsync<List<BitwardenItem>>(stream);
+            return items ?? new List<BitwardenItem>();
         }
 
-        /// <inheritdoc/>
+        public Control CreateSettingPanel()
+        {
+            throw new NotImplementedException();
+        }
+
         public void Dispose()
         {
-            Log.Info("Dispose", GetType());
-
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            HttpClient?.Dispose();
         }
+    }
 
-        /// <summary>
-        /// Wrapper method for <see cref="Dispose()"/> that dispose additional objects and events form the plugin itself.
-        /// </summary>
-        /// <param name="disposing">Indicate that the plugin is disposed.</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (Disposed || !disposing)
-            {
-                return;
-            }
-
-            if (Context?.API != null)
-            {
-                Context.API.ThemeChanged -= OnThemeChanged;
-            }
-
-            Disposed = true;
-        }
-
-        private void UpdateIconPath(Theme theme) => IconPath = theme == Theme.Light || theme == Theme.HighContrastWhite ? Context?.CurrentPluginMetadata.IcoPathLight : Context?.CurrentPluginMetadata.IcoPathDark;
-
-        private void OnThemeChanged(Theme currentTheme, Theme newTheme) => UpdateIconPath(newTheme);
-
-        private static bool CopyToClipboard(string? value)
-        {
-            if (value != null)
-            {
-                Clipboard.SetText(value);
-            }
-
-            return true;
-        }
+    public class BitwardenItem
+    {
+        public string Name { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
     }
 }
