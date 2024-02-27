@@ -23,13 +23,16 @@ jobs:
       run: dotnet build Community.PowerToys.Run.Plugin.BitwardenPlugin/Community.PowerToys.Run.Plugin.BitwardenPlugin.csproj --configuration Release --no-restore
 
     - name: Publish
-      run: dotnet publish Community.PowerToys.Run.Plugin.BitwardenPlugin/Community.PowerToys.Run.Plugin.BitwardenPlugin.csproj -c Release -o out
+      run: dotnet publish Community.PowerToys.Run.Plugin.BitwardenPlugin/Community.PowerToys.Run.Plugin.BitwardenPlugin.csproj -c Release -o ${{github.workspace}}/out
+
+    - name: List output directory contents
+      run: dir ${{github.workspace}}/out
 
     - name: Zip Artifact
       uses: actions/upload-artifact@v3
       with:
         name: bitwarden-plugin
-        path: Community.PowerToys.Run.Plugin.BitwardenPlugin/out/**
+        path: ${{github.workspace}}/out/**
 
     - name: Create Release
       id: create_release
@@ -48,6 +51,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./Community.PowerToys.Run.Plugin.BitwardenPlugin/out/bitwarden-plugin.zip
+        asset_path: ./${{github.workspace}}/out/bitwarden-plugin.zip
         asset_name: bitwarden-plugin.zip
         asset_content_type: application/zip
