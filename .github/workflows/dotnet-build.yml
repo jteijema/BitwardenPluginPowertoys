@@ -30,11 +30,11 @@ jobs:
     - name: Publish
       run: dotnet publish Community.PowerToys.Run.Plugin.BitwardenPlugin/Community.PowerToys.Run.Plugin.BitwardenPlugin.csproj -c Release -o ${{github.workspace}}/out
 
-    # Extract version from project.json
+    # Extract version from plugin.json
     - name: Extract version
       id: project_version
       run: |
-        $json = Get-Content ${{github.workspace}}/out/project.json | ConvertFrom-Json
+        $json = Get-Content ${{github.workspace}}/out/plugin.json | ConvertFrom-Json
         echo "PROJECT_VERSION=$($json.Version)" | Out-File -FilePath $Env:GITHUB_ENV -Append
         echo "::set-output name=version::$($json.Version)"
   
