@@ -57,12 +57,10 @@ namespace Community.PowerToys.Run.Plugin.BitwardenPlugin
                     Title = "Copy API Key",
                     SubTitle = "Copy the Bitwarden API key to the clipboard",
                     IcoPath = IconPath,
-                    ToolTipData = new ToolTipData("Copy the Bitwarden API key to the clipboard"),
                     Action = context =>
                     {
                         return CopyApiKeyToClipboard();
                     },
-                    score = 100,
                 });
             }
 
@@ -77,8 +75,6 @@ namespace Community.PowerToys.Run.Plugin.BitwardenPlugin
                 {
                     Title = "API Key copied to clipboard",
                     IcoPath = IconPath,
-                    ToolTipData = new ToolTipData("API Key copied to clipboard"),
-                    score = 100,
                 };
             }
 
@@ -86,8 +82,6 @@ namespace Community.PowerToys.Run.Plugin.BitwardenPlugin
             {
                 Title = "Failed to copy API Key to clipboard",
                 IcoPath = IconPath,
-                ToolTipData = new ToolTipData("Failed to copy API Key to clipboard"),
-                score = 0,
             };
         }
 
