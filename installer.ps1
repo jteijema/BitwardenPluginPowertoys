@@ -1,7 +1,7 @@
 # PowerShell script that downloads latest release from GitHub and installs it to PowerToys Run plugin folder
 # Usage: .\installer.ps1
 
-$installLocation = "%LOCALAPPDATA%\PowerToys\RunPlugins\BitwardenPlugin"
+$installLocation = "%LocalAppData%\Microsoft\PowerToys\PowerToys Run\Plugins\BitwardenPlugin"
 
 # Get latest release from GitHub
 $latestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/jteijema/BitwardenPluginPowertoys/releases/latest"
