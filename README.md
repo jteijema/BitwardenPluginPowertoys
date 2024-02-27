@@ -19,9 +19,6 @@ It is designed to be used as a plugin for PowerToys, a set of utilities for Wind
    - `%LocalAppData%\Microsoft\PowerToys\PowerToys Run\Plugins`
 4. Start PowerToys
 
-Dependencies:
-- [List any dependencies required by the code]
-
 ## Usage
 
 1. Open PowerToys Run with `alt + space`
