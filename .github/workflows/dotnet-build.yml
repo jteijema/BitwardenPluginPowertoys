@@ -18,14 +18,6 @@ jobs:
       with:
         dotnet-version: '8.0'
 
-    # Extract version from project.json
-    - name: Extract version
-      id: project_version
-      run: |
-        $json = Get-Content ${{github.workspace}}/out/project.json | ConvertFrom-Json
-        echo "PROJECT_VERSION=$($json.Version)" | Out-File -FilePath $Env:GITHUB_ENV -Append
-        echo "::set-output name=version::$($json.Version)"
-
     # Restore dependencies
     - name: Restore dependencies
       run: dotnet restore Community.PowerToys.Run.Plugin.BitwardenPlugin/Community.PowerToys.Run.Plugin.BitwardenPlugin.csproj
@@ -38,6 +30,14 @@ jobs:
     - name: Publish
       run: dotnet publish Community.PowerToys.Run.Plugin.BitwardenPlugin/Community.PowerToys.Run.Plugin.BitwardenPlugin.csproj -c Release -o ${{github.workspace}}/out
 
+    # Extract version from project.json
+    - name: Extract version
+      id: project_version
+      run: |
+        $json = Get-Content ${{github.workspace}}/out/project.json | ConvertFrom-Json
+        echo "PROJECT_VERSION=$($json.Version)" | Out-File -FilePath $Env:GITHUB_ENV -Append
+        echo "::set-output name=version::$($json.Version)"
+  
     # Zip the output directory
     - name: Zip the output directory
       run: Compress-Archive -Path ${{github.workspace}}/out/* -DestinationPath ${{github.workspace}}/out/BitwardenPlugin-${{ steps.project_version.outputs.version }}-x64.zip
