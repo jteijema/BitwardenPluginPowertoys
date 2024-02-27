@@ -61,7 +61,7 @@ namespace Community.PowerToys.Run.Plugin.BitwardenPlugin
                     Action = context =>
                     {
                         return CopyApiKeyToClipboard();
-                    }
+                    },
                     score = 100,
                 });
             }
