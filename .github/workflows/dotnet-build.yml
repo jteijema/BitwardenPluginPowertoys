@@ -42,7 +42,7 @@ jobs:
     - name: Prepare output directory
       run: |
         $sourceDir = "D:\a\BitwardenPluginPowertoys\BitwardenPluginPowertoys\out"
-        $targetDir = "D:\a\BitwardenPluginPowertoys\BitwardenPluginPowertoys\out\BitwardenPlugin"
+        $targetDir = "D:\a\BitwardenPluginPowertoys\BitwardenPluginPowertoys\out\BitwardenPlugin\BitwardenPlugin"
         New-Item -Path $targetDir -ItemType Directory -Force
         Get-ChildItem -Path $sourceDir -File | Where-Object { $_.Name -notmatch '^(PowerToys\.Common\.UI\.dll|PowerToys\.ManagedCommon\.dll|PowerToys\.Settings\.UI\.Lib\.dll|Wox\.Infrastructure\.dll|Wox\.Plugin\.dll)$' } | ForEach-Object { Copy-Item $_.FullName -Destination $targetDir }
 
