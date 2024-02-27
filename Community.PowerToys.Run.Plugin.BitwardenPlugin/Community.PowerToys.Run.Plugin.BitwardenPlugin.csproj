@@ -1,12 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\..\Version.props" />
 
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
     <ProjectGuid>{1C638DC8E8564E3194B323BA041B4A05}</ProjectGuid>
     <RootNamespace>Community.PowerToys.Run.Plugin.BitwardenPlugin</RootNamespace>
     <AssemblyName>Community.PowerToys.Run.Plugin.BitwardenPlugin</AssemblyName>
-    <Version>$(Version).0</Version>
+    <Version>0.1.1</Version>
     <useWPF>true</useWPF>
     <Platforms>x64</Platforms>
     <PlatformTarget>$(Platform)</PlatformTarget>
