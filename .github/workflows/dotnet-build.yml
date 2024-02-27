@@ -32,7 +32,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: bitwarden-plugin
-        path: ${{github.workspace}}/out/bitwarden-plugin.zip
+        path: ${{github.workspace}}/out/BitwardenPlugin-0.1.1-x64.zip
 
     - name: List output directory contents
       run: dir ${{github.workspace}}/out
@@ -54,6 +54,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{github.workspace}}/out/bitwarden-plugin.zip
+        asset_path: ${{github.workspace}}/out/BitwardenPlugin-0.1.0-x64.zip
         asset_name: bitwarden-plugin.zip
         asset_content_type: application/zip
