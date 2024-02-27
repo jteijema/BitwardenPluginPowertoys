@@ -19,12 +19,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Wox.Infrastructure\Wox.Infrastructure.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Wox.Plugin\Wox.Plugin.csproj">
-      <Private>false</Private>
-    </ProjectReference>
+    <Reference Include="..\libs\x64\PowerToys.Common.UI.dll" />
+    <Reference Include="..\libs\x64\PowerToys.ManagedCommon.dll" />
+    <Reference Include="..\libs\x64\PowerToys.Settings.UI.Lib.dll" />
+    <Reference Include="..\libs\x64\Wox.Infrastructure.dll" />
+    <Reference Include="..\libs\x64\Wox.Plugin.dll" />
   </ItemGroup>
 
   <ItemGroup>
