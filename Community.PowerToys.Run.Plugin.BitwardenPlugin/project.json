@@ -4,7 +4,7 @@
     "IsGlobal": false,
     "Name": "BitwardenPlugin",
     "Author": "JTeijema",
-    "Version": "0.1.0",
+    "Version": "0.1.1",
     "Language": "csharp",
     "Website": "https://github.com/jteijema/PowerToysRunPluginBitwarden",
     "ExecuteFileName": "Community.PowerToys.Run.Plugin.BitwardenPlugin.dll",
