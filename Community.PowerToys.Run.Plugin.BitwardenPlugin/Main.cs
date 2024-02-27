@@ -47,6 +47,8 @@ namespace Community.PowerToys.Run.Plugin.BitwardenPlugin
 
         private string? IconPath { get; set; }
 
+        private PluginInitContext? Context { get; set; }
+
         private string? ApiKey { get; set; }
 
         /// <summary>
@@ -95,6 +97,8 @@ namespace Community.PowerToys.Run.Plugin.BitwardenPlugin
 
             return true;
         }
+
+        private bool Disposed { get; set; }
 
         /// <inheritdoc/>
         public void Dispose()
