@@ -13,7 +13,7 @@ using Wox.Plugin.Logger;
 
 namespace Community.PowerToys.Run.Plugin.BitwardenPlugin
 {
-    public class Main : IPlugin, ISettingProvider, IDisposable
+    public class Main : IPlugin, IContextMenu, ISettingProvider, IDisposable
     {        
         /// <summary>
         /// ID of the plugin.
@@ -44,6 +44,30 @@ namespace Community.PowerToys.Run.Plugin.BitwardenPlugin
                 Value = ApiKey,
             }
         };
+
+        public List<Result> Query(Query query)
+        {
+            var results = new List<Result>();
+
+            // Check if the query matches the command to copy the API key
+            if (query.Search.Equals("copyapikey", StringComparison.OrdinalIgnoreCase))
+            {
+                results.Add(new Result
+                {
+                    Title = "Copy API Key",
+                    SubTitle = "Copy the Bitwarden API key to the clipboard",
+                    IcoPath = IconPath,
+                    ToolTipData = new ToolTipData("Copy the Bitwarden API key to the clipboard"),
+                    Action = context =>
+                    {
+                        return CopyApiKeyToClipboard();
+                    }
+                    score = 100,
+                });
+            }
+
+            return results;
+        }
 
         private string? IconPath { get; set; }
 
