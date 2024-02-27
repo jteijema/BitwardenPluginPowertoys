@@ -11,49 +11,67 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    # Setup .NET SDK
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0'
 
+    # Extract version from project.json
+    - name: Extract version
+      id: project_version
+      run: |
+        $json = Get-Content ./BitwardenPluginPowertoys/Community.PowerToys.Run.Plugin.BitwardenPlugin/project.json | ConvertFrom-Json
+        echo "PROJECT_VERSION=$($json.Version)" | Out-File -FilePath $Env:GITHUB_ENV -Append
+        echo "::set-output name=version::$($json.Version)"
+
+    # Restore dependencies
     - name: Restore dependencies
       run: dotnet restore Community.PowerToys.Run.Plugin.BitwardenPlugin/Community.PowerToys.Run.Plugin.BitwardenPlugin.csproj
 
+    # Build project
     - name: Build
       run: dotnet build Community.PowerToys.Run.Plugin.BitwardenPlugin/Community.PowerToys.Run.Plugin.BitwardenPlugin.csproj --configuration Release --no-restore
 
+    # Publish project
     - name: Publish
       run: dotnet publish Community.PowerToys.Run.Plugin.BitwardenPlugin/Community.PowerToys.Run.Plugin.BitwardenPlugin.csproj -c Release -o ${{github.workspace}}/out
 
+    # Zip the output directory
     - name: Zip the output directory
-      run: Compress-Archive -Path ${{github.workspace}}/out/* -DestinationPath ${{github.workspace}}/out/bitwarden-plugin.zip
+      run: Compress-Archive -Path ${{github.workspace}}/out/* -DestinationPath ${{github.workspace}}/out/BitwardenPlugin-${{ steps.project_version.outputs.version }}-x64.zip
 
+    # Upload Artifact
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
         name: bitwarden-plugin
-        path: ${{github.workspace}}/out/BitwardenPlugin-0.1.1-x64.zip
+        path: ${{github.workspace}}/out/BitwardenPlugin-${{ steps.project_version.outputs.version }}-x64.zip
 
+    # List output directory contents
     - name: List output directory contents
       run: dir ${{github.workspace}}/out
 
+    # Create Release
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref_name }}
-        release_name: Release ${{ github.ref_name }}
+        tag_name: ${{ steps.project_version.outputs.version }}
+        release_name: Release ${{ steps.project_version.outputs.version }}
         draft: false
         prerelease: false
 
+    # Upload Release Asset
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{github.workspace}}/out/BitwardenPlugin-0.1.0-x64.zip
-        asset_name: bitwarden-plugin.zip
+        asset_path: ${{github.workspace}}/out/BitwardenPlugin-${{ steps.project_version.outputs.version }}-x64.zip
+        asset_name: BitwardenPlugin-${{ steps.project_version.outputs.version }}.zip
         asset_content_type: application/zip
