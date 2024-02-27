@@ -41,7 +41,7 @@ namespace Community.PowerToys.Run.Plugin.BitwardenPlugin
                 DisplayLabel = "API Key",
                 DisplayDescription = "Enter your API key",
                 PluginOptionType = PluginAdditionalOption.AdditionalOptionType.Textbox,
-                Value = ApiKey,
+                TextValue = ApiKey,
             }
         };
 
@@ -67,6 +67,28 @@ namespace Community.PowerToys.Run.Plugin.BitwardenPlugin
             }
 
             return results;
+        }
+
+        private Result CopyApiKeyToClipboard()
+        {
+            if (CopyToClipboard(ApiKey))
+            {
+                return new Result
+                {
+                    Title = "API Key copied to clipboard",
+                    IcoPath = IconPath,
+                    ToolTipData = new ToolTipData("API Key copied to clipboard"),
+                    score = 100,
+                };
+            }
+
+            return new Result
+            {
+                Title = "Failed to copy API Key to clipboard",
+                IcoPath = IconPath,
+                ToolTipData = new ToolTipData("Failed to copy API Key to clipboard"),
+                score = 0,
+            };
         }
 
         private string? IconPath { get; set; }
