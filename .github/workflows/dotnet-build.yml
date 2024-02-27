@@ -25,11 +25,14 @@ jobs:
     - name: Publish
       run: dotnet publish Community.PowerToys.Run.Plugin.BitwardenPlugin/Community.PowerToys.Run.Plugin.BitwardenPlugin.csproj -c Release -o ${{github.workspace}}/out
 
-    - name: Zip Artifact
+    - name: Zip the output directory
+      run: Compress-Archive -Path ${{github.workspace}}/out/* -DestinationPath ${{github.workspace}}/out/bitwarden-plugin.zip
+
+    - name: Upload Artifact
       uses: actions/upload-artifact@v3
       with:
         name: bitwarden-plugin
-        path: ${{github.workspace}}/out/**
+        path: ${{github.workspace}}/out/bitwarden-plugin.zip
 
     - name: List output directory contents
       run: dir ${{github.workspace}}/out
