@@ -38,9 +38,16 @@ jobs:
         echo "PROJECT_VERSION=$($json.Version)" | Out-File -FilePath $Env:GITHUB_ENV -Append
         echo "::set-output name=version::$($json.Version)"
   
-    # Zip the output directory
+    # Prepare output directory
+    - name: Prepare output directory
+      run: |
+        $targetDir = "${{github.workspace}}/out/BitwardenPlugin"
+        New-Item -Path $targetDir -ItemType Directory -Force
+        Copy-Item "${{github.workspace}}/out/*" $targetDir -Exclude 'PowerToys.Common.UI.dll', 'PowerToys.ManagedCommon.dll', 'PowerToys.Settings.UI.Lib.dll', 'Wox.Infrastructure.dll', 'Wox.Plugin.dll' -Force
+
+    # Zip the prepared directory
     - name: Zip the output directory
-      run: Compress-Archive -Path ${{github.workspace}}/out/* -DestinationPath ${{github.workspace}}/out/BitwardenPlugin-${{ steps.project_version.outputs.version }}-x64.zip
+      run: Compress-Archive -Path ${{github.workspace}}/out/BitwardenPlugin/* -DestinationPath ${{github.workspace}}/out/BitwardenPlugin-${{ steps.project_version.outputs.version }}-x64.zip
 
     # Upload Artifact
     - name: Upload Artifact
