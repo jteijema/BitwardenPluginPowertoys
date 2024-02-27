@@ -1,0 +1,14 @@
+{
+    "ID": "1C638DC8E8564E3194B323BA041B4A05",
+    "ActionKeyword": "bw",
+    "IsGlobal": false,
+    "Name": "BitwardenPlugin",
+    "Author": "JTeijema",
+    "Version": "0.1.0",
+    "Language": "csharp",
+    "Website": "https://github.com/jteijema/PowerToysRunPluginBitwarden",
+    "ExecuteFileName": "Community.PowerToys.Run.Plugin.BitwardenPlugin.dll",
+    "IcoPathDark": "Images\\dark.png",
+    "IcoPathLight": "Images\\light.png",
+    "DynamicLoading": false
+}
