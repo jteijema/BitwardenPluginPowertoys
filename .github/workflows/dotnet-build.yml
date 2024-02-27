@@ -22,7 +22,7 @@ jobs:
     - name: Extract version
       id: project_version
       run: |
-        $json = Get-Content ./BitwardenPluginPowertoys/Community.PowerToys.Run.Plugin.BitwardenPlugin/project.json | ConvertFrom-Json
+        $json = Get-Content ${{github.workspace}}/out/project.json | ConvertFrom-Json
         echo "PROJECT_VERSION=$($json.Version)" | Out-File -FilePath $Env:GITHUB_ENV -Append
         echo "::set-output name=version::$($json.Version)"
 
