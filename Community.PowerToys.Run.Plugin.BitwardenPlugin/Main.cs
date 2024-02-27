@@ -59,30 +59,13 @@ namespace Community.PowerToys.Run.Plugin.BitwardenPlugin
                     IcoPath = IconPath,
                     Action = context =>
                     {
-                        return CopyApiKeyToClipboard();
+                        CopyToClipboard(ApiKey);
+                        return true;
                     },
                 });
             }
 
             return results;
-        }
-
-        private Result CopyApiKeyToClipboard()
-        {
-            if (CopyToClipboard(ApiKey))
-            {
-                return new Result
-                {
-                    Title = "API Key copied to clipboard",
-                    IcoPath = IconPath,
-                };
-            }
-
-            return new Result
-            {
-                Title = "Failed to copy API Key to clipboard",
-                IcoPath = IconPath,
-            };
         }
 
         private string? IconPath { get; set; }
@@ -102,8 +85,6 @@ namespace Community.PowerToys.Run.Plugin.BitwardenPlugin
             Context = context ?? throw new ArgumentNullException(nameof(context));
             Context.API.ThemeChanged += OnThemeChanged;
             UpdateIconPath(Context.API.GetCurrentTheme());
-
-            ApiKey = context.API?.GetAdditionalOptionValue(PluginID, nameof(ApiKey));
         }
 
         private void UpdateIconPath(Theme theme) => IconPath = theme == Theme.Light || theme == Theme.HighContrastWhite ? Context?.CurrentPluginMetadata.IcoPathLight : Context?.CurrentPluginMetadata.IcoPathDark;
@@ -125,7 +106,7 @@ namespace Community.PowerToys.Run.Plugin.BitwardenPlugin
         {
             Log.Info("UpdateSettings", GetType());
 
-            ApiKey = settings.AdditionalOptions?.FirstOrDefault(x => x.Key == nameof(ApiKey))?.Value;
+            ApiKey = settings.AdditionalOptions?.FirstOrDefault(x => x.Key == nameof(ApiKey))?.TextValue;
         }
 
         private static bool CopyToClipboard(string? value)
