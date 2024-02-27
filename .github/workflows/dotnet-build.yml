@@ -41,9 +41,10 @@ jobs:
     # Prepare output directory
     - name: Prepare output directory
       run: |
-        $targetDir = "${{github.workspace}}/out/BitwardenPlugin"
+        $sourceDir = "D:\a\BitwardenPluginPowertoys\BitwardenPluginPowertoys\out"
+        $targetDir = "D:\a\BitwardenPluginPowertoys\BitwardenPluginPowertoys\out\BitwardenPlugin"
         New-Item -Path $targetDir -ItemType Directory -Force
-        Copy-Item "${{github.workspace}}/out/*" $targetDir -Exclude 'PowerToys.Common.UI.dll', 'PowerToys.ManagedCommon.dll', 'PowerToys.Settings.UI.Lib.dll', 'Wox.Infrastructure.dll', 'Wox.Plugin.dll' -Force
+        Get-ChildItem -Path $sourceDir -File | Where-Object { $_.Name -notmatch '^(PowerToys\.Common\.UI\.dll|PowerToys\.ManagedCommon\.dll|PowerToys\.Settings\.UI\.Lib\.dll|Wox\.Infrastructure\.dll|Wox\.Plugin\.dll)$' } | ForEach-Object { Copy-Item $_.FullName -Destination $targetDir }
 
     # Zip the prepared directory
     - name: Zip the output directory
